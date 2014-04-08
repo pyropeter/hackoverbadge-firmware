@@ -228,7 +228,7 @@ void show_frame(badge_framebuffer * fb) {
   badge_framebuffer_flush((badge_framebuffer const *) fb);
 }
 
-void show_grid(badge_framebuffer * fb, uint16_t grid[GRID_SIZE][GRID_SIZE]) {
+void show_grid(badge_framebuffer * fb, uint8_t grid[GRID_SIZE][GRID_SIZE]) {
   for(uint8_t x_grid = 0; x_grid < 4; x_grid++) {
     for(uint8_t y_grid = 0; y_grid < 4; y_grid++) {
 	render_number(fb, grid[x_grid][y_grid], x_grid, y_grid);

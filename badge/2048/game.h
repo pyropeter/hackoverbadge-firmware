@@ -9,8 +9,9 @@
 extern uint8_t spawn_flag;
 extern uint8_t end_flag;
 
-void move(uint16_t grid[GRID_SIZE][GRID_SIZE], uint8_t direction);
-void spawn_number(uint16_t grid[GRID_SIZE][GRID_SIZE]);
+uint8_t move_possible(uint8_t grid[GRID_SIZE][GRID_SIZE]);
+void move(uint8_t grid[GRID_SIZE][GRID_SIZE], uint8_t direction);
+void spawn_number(uint8_t grid[GRID_SIZE][GRID_SIZE]);
 void handle_input_event();
 void new_2048(void);
 
