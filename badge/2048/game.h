@@ -8,6 +8,7 @@
 
 extern uint8_t spawn_flag;
 extern uint8_t end_flag;
+extern uint32_t score;
 
 uint8_t move_possible(uint8_t grid[GRID_SIZE][GRID_SIZE]);
 void move(uint8_t grid[GRID_SIZE][GRID_SIZE], uint8_t direction);

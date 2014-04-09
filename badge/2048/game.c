@@ -34,6 +34,7 @@ enum {
 };
 
 uint8_t spawn_flag, end_flag;
+uint32_t score;
 
 uint8_t move_possible(uint8_t grid[GRID_SIZE][GRID_SIZE]) {
   uint8_t value, neighbor;
@@ -75,6 +76,17 @@ uint8_t move_possible(uint8_t grid[GRID_SIZE][GRID_SIZE]) {
   return MOVE_IMPOSSIBLE;
 }
 
+uint32_t pow2(uint8_t power) {
+  uint32_t pow2;
+  pow2 = 1;
+
+  for(uint8_t i = 0; i < power; i++) {
+    pow2 *= 2; 
+  }
+
+  return pow2;
+}
+
 void move(uint8_t grid[GRID_SIZE][GRID_SIZE], uint8_t direction) {
   int8_t tmp, move_flag;
   uint8_t merged[GRID_SIZE] = { 0 };
@@ -97,6 +109,7 @@ void move(uint8_t grid[GRID_SIZE][GRID_SIZE], uint8_t direction) {
 	    grid[x][tmp - 1] += 1;
 	    grid[x][tmp] = 0;
 	    merged[tmp - 1] |= 1 << (3 - x);
+	    score += pow2(grid[x][tmp - 1]);
 	    tmp = 0;
 	    move_flag = COULD_MOVE;
 	  } else {
@@ -121,6 +134,7 @@ void move(uint8_t grid[GRID_SIZE][GRID_SIZE], uint8_t direction) {
 	    grid[x][tmp + 1] += 1;
 	    grid[x][tmp] = 0;
 	    merged[tmp + 1] |= 1 << (3 - x);
+	    score += pow2(grid[x][tmp + 1]);
 	    tmp = 3;
 	    move_flag = COULD_MOVE;
 	  } else {
@@ -144,6 +158,7 @@ void move(uint8_t grid[GRID_SIZE][GRID_SIZE], uint8_t direction) {
 		    !((merged[y] >> (3 - (tmp + 1))) & 1)) {
 	    grid[tmp + 1][y] += 1;
 	    grid[tmp][y] = 0;
+	    score += pow2(grid[tmp + 1][y]);
 	    merged[y] |= 1 << (3 - (tmp + 1));
 	    tmp = 3;
 	    move_flag = COULD_MOVE;
@@ -169,6 +184,7 @@ void move(uint8_t grid[GRID_SIZE][GRID_SIZE], uint8_t direction) {
 	    grid[tmp - 1][y] += 1;
 	    grid[tmp][y] = 0;
 	    merged[y] |= 1 << (3 - (tmp - 1));
+	    score += pow2(grid[tmp - 1][y]);
 	    tmp = 0;
 	    move_flag = COULD_MOVE;
 	  } else {
@@ -218,20 +234,33 @@ void handle_input_event(uint8_t grid[GRID_SIZE][GRID_SIZE]) {
 void new_2048(void) {
   badge_framebuffer fb;
   badge_event_t ev;
+  uint32_t old_score;
   uint8_t grid[GRID_SIZE][GRID_SIZE] = { { 0 } };
 
   srand(systickGetTicks());
 
-  badge_framebuffer_clear(&fb);
-  show_frame(&fb);
+  render_intro(&fb);
 
   spawn_flag = SPAWN_TRUE;
   end_flag = END_FLAG_NO;
+  score = 0;
+  old_score = 0;
+
+  badge_framebuffer_clear(&fb);
+  render_score(&fb, score);
 
   do {
     if(spawn_flag)
       spawn_number(grid);
+
+    show_frame(&fb);
     show_grid(&fb, grid);
+
+    if(score != old_score) {
+      badge_framebuffer_clear(&fb);
+      render_score(&fb, score);
+      old_score = score;
+    }
 
     if(!move_possible(grid)) 
       break;
@@ -244,8 +273,7 @@ void new_2048(void) {
   if(end_flag == END_FLAG_NOW)
     return;
   else if(end_flag == END_FLAG_LOST) {
-    //irgendwas wie einmal "LOST" aufflackern lassen oder so
-
+    render_lost(&fb);
     return;
   }
 }

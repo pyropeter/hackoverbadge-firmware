@@ -1,5 +1,8 @@
 #include <stdint.h>
 
+#include "../ui/event.h"
+#include "../ui/font.h"
+
 #include "render.h"
 
 static uint16_t const number_glyphs[][FIELD_SIZE] = {
@@ -214,6 +217,49 @@ static uint16_t const number_glyphs[][FIELD_SIZE] = {
   }
 };
 
+void render_intro(badge_framebuffer * fb) { 
+  badge_event_t ev;
+
+  badge_framebuffer_clear(fb);
+  badge_framebuffer_render_text(fb, 10, BADGE_DISPLAY_HEIGHT / 2 - BADGE_FONT_HEIGHT,
+				"A oder B zum");
+  badge_framebuffer_render_text(fb, 0, BADGE_DISPLAY_HEIGHT / 2,
+				"Beenden drücken");
+  badge_framebuffer_flush((badge_framebuffer const *) fb);
+
+  for(uint8_t i = 0; i < 100;) {
+    ev = badge_event_wait();
+    if(badge_event_type(ev) == BADGE_EVENT_GAME_TICK)
+      i++;
+  }
+}
+
+void invert_framebuffer(badge_framebuffer * fb) {
+  for(uint8_t x = 0; x < BADGE_DISPLAY_WIDTH; x++) {
+    for(uint8_t y = 0; y < BADGE_DISPLAY_HEIGHT; y++)
+      badge_framebuffer_pixel_flip(fb, x, y);
+  }
+
+  badge_framebuffer_flush((badge_framebuffer const *) fb);
+}
+
+void render_lost(badge_framebuffer * fb) { 
+  badge_event_t ev;
+
+  badge_framebuffer_clear(fb);
+  badge_framebuffer_render_text(fb, 10, BADGE_DISPLAY_HEIGHT / 2 - BADGE_FONT_HEIGHT,
+				"YOU LOST");
+  badge_framebuffer_flush((badge_framebuffer const *) fb);
+
+  for(uint8_t i = 0; i < 100;) {
+    ev = badge_event_wait();
+    if(badge_event_type(ev) == BADGE_EVENT_GAME_TICK)
+      i++;
+    if(i % 25 == 0)
+      invert_framebuffer(fb);
+  }
+}
+
 void show_frame(badge_framebuffer * fb) {
   for(uint8_t y = 10; y <= 10 + 14 * 4; y += 14) {
     for(uint8_t x = 20; x <= 20 + 55; x++)
@@ -223,6 +269,20 @@ void show_frame(badge_framebuffer * fb) {
   for(uint8_t x = 20; x <= 20 + 4 * 14; x += 14) {
     for(uint8_t y = 10; y <= 10 + 14 * 4; y++)
       badge_framebuffer_pixel_on(fb, x, y);
+  }
+
+  badge_framebuffer_flush((badge_framebuffer const *) fb);
+}
+
+void render_score(badge_framebuffer * fb, uint32_t score) {
+  uint8_t digit, pow10;
+
+  pow10 = 1;
+  for(uint8_t i = 0; i < 9; i++) {
+    score /= pow10;
+    digit = score % 10;
+    pow10 *= 10;
+    badge_framebuffer_render_number(fb, 70 - (i * BADGE_FONT_WIDTH), 1, digit);
   }
 
   badge_framebuffer_flush((badge_framebuffer const *) fb);
@@ -249,7 +309,3 @@ void render_number(badge_framebuffer * fb, uint8_t number, uint8_t x_grid, uint8
   }
 };
 
-void clear_field(badge_framebuffer * fb, uint8_t x_grid, uint8_t y_grid) {
-  render_number(fb, 0, x_grid, y_grid);
-  badge_framebuffer_flush((badge_framebuffer const *) fb);
-}
