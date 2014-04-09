@@ -33,7 +33,12 @@ enum {
   COULD_MOVE
 };
 
-uint8_t spawn_flag, end_flag;
+enum {
+  NOT_REACHED_2048,
+  REACHED_2048
+};
+
+uint8_t spawn_flag, end_flag, reached_flag;
 uint32_t score;
 
 uint8_t move_possible(uint8_t grid[GRID_SIZE][GRID_SIZE]) {
@@ -110,6 +115,8 @@ void move(uint8_t grid[GRID_SIZE][GRID_SIZE], uint8_t direction) {
 	    grid[x][tmp] = 0;
 	    merged[tmp - 1] |= 1 << (3 - x);
 	    score += pow2(grid[x][tmp - 1]);
+	    if(grid[x][tmp - 1] == 11)
+	      reached_flag = REACHED_2048;
 	    tmp = 0;
 	    move_flag = COULD_MOVE;
 	  } else {
@@ -135,6 +142,8 @@ void move(uint8_t grid[GRID_SIZE][GRID_SIZE], uint8_t direction) {
 	    grid[x][tmp] = 0;
 	    merged[tmp + 1] |= 1 << (3 - x);
 	    score += pow2(grid[x][tmp + 1]);
+	    if(grid[x][tmp + 1] == 11)
+	      reached_flag = REACHED_2048;
 	    tmp = 3;
 	    move_flag = COULD_MOVE;
 	  } else {
@@ -160,6 +169,8 @@ void move(uint8_t grid[GRID_SIZE][GRID_SIZE], uint8_t direction) {
 	    grid[tmp][y] = 0;
 	    score += pow2(grid[tmp + 1][y]);
 	    merged[y] |= 1 << (3 - (tmp + 1));
+	    if(grid[tmp + 1][y] == 11)
+	      reached_flag = REACHED_2048;
 	    tmp = 3;
 	    move_flag = COULD_MOVE;
 	  } else {
@@ -185,6 +196,8 @@ void move(uint8_t grid[GRID_SIZE][GRID_SIZE], uint8_t direction) {
 	    grid[tmp][y] = 0;
 	    merged[y] |= 1 << (3 - (tmp - 1));
 	    score += pow2(grid[tmp - 1][y]);
+	    if(grid[tmp - 1][y] == 11)
+	      reached_flag = REACHED_2048;
 	    tmp = 0;
 	    move_flag = COULD_MOVE;
 	  } else {
@@ -243,6 +256,7 @@ void new_2048(void) {
 
   spawn_flag = SPAWN_TRUE;
   end_flag = END_FLAG_NO;
+  reached_flag = NOT_REACHED_2048;
   score = 0;
   old_score = 0;
 
@@ -255,6 +269,17 @@ void new_2048(void) {
 
     show_frame(&fb);
     show_grid(&fb, grid);
+
+    if(reached_flag == REACHED_2048) {
+      for(uint8_t i = 0; i < 100;) {
+	ev = badge_event_wait();
+	if(badge_event_type(ev) == BADGE_EVENT_GAME_TICK)
+	  i++;
+	if(i % 25 == 0)
+	  invert_framebuffer(&fb);
+      }
+      reached_flag = NOT_REACHED_2048;
+    }
 
     if(score != old_score) {
       badge_framebuffer_clear(&fb);
@@ -274,6 +299,17 @@ void new_2048(void) {
     return;
   else if(end_flag == END_FLAG_LOST) {
     render_lost(&fb);
+    badge_framebuffer_clear(&fb);
+    show_frame(&fb);
+    show_grid(&fb, grid);
+    render_score(&fb, score);
+
+    for(uint8_t i = 0; i < 100;) {
+      ev = badge_event_wait();
+      if(badge_event_type(ev) == BADGE_EVENT_GAME_TICK)
+	i++;
+    }
+
     return;
   }
 }
