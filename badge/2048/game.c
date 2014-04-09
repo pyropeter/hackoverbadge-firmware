@@ -77,6 +77,7 @@ uint8_t move_possible(uint8_t grid[GRID_SIZE][GRID_SIZE]) {
 
 void move(uint8_t grid[GRID_SIZE][GRID_SIZE], uint8_t direction) {
   int8_t tmp, move_flag;
+  uint8_t merged[GRID_SIZE] = { 0 };
 
   move_flag = COULDNT_MOVE;
 
@@ -91,9 +92,11 @@ void move(uint8_t grid[GRID_SIZE][GRID_SIZE], uint8_t direction) {
 	    grid[x][tmp - 1] = grid[x][tmp];
 	    grid[x][tmp--] = 0;
 	    move_flag = COULD_MOVE;
-	  } else if(grid[x][tmp] > 0 && grid[x][tmp - 1] == grid[x][tmp]){
+	  } else if(grid[x][tmp] > 0 && grid[x][tmp - 1] == grid[x][tmp] && 
+		    !((merged[tmp - 1] >> (3 - x)) & 1)) {
 	    grid[x][tmp - 1] += 1;
 	    grid[x][tmp] = 0;
+	    merged[tmp - 1] |= 1 << (3 - x);
 	    tmp = 0;
 	    move_flag = COULD_MOVE;
 	  } else {
@@ -113,9 +116,11 @@ void move(uint8_t grid[GRID_SIZE][GRID_SIZE], uint8_t direction) {
 	    grid[x][tmp + 1] = grid[x][tmp];
 	    grid[x][tmp++] = 0;
 	    move_flag = COULD_MOVE;
-	  } else if(grid[x][tmp] > 0 && grid[x][tmp + 1] == grid[x][tmp]){
+	  } else if(grid[x][tmp] > 0 && grid[x][tmp + 1] == grid[x][tmp] && 
+		    !((merged[tmp + 1] >> (3 - x)) & 1)) {
 	    grid[x][tmp + 1] += 1;
 	    grid[x][tmp] = 0;
+	    merged[tmp + 1] |= 1 << (3 - x);
 	    tmp = 3;
 	    move_flag = COULD_MOVE;
 	  } else {
@@ -135,9 +140,11 @@ void move(uint8_t grid[GRID_SIZE][GRID_SIZE], uint8_t direction) {
 	    grid[tmp + 1][y] = grid[tmp][y];
 	    grid[tmp++][y] = 0;
 	    move_flag = COULD_MOVE;
-	  } else if(grid[tmp][y] > 0 && grid[tmp + 1][y] == grid[tmp][y]){
+	  } else if(grid[tmp][y] > 0 && grid[tmp + 1][y] == grid[tmp][y] &&
+		    !((merged[y] >> (3 - (tmp + 1))) & 1)) {
 	    grid[tmp + 1][y] += 1;
 	    grid[tmp][y] = 0;
+	    merged[y] |= 1 << (3 - (tmp + 1));
 	    tmp = 3;
 	    move_flag = COULD_MOVE;
 	  } else {
@@ -157,9 +164,11 @@ void move(uint8_t grid[GRID_SIZE][GRID_SIZE], uint8_t direction) {
 	    grid[tmp - 1][y] = grid[tmp][y];
 	    grid[tmp--][y] = 0;
 	    move_flag = COULD_MOVE;
-	  } else if(grid[tmp][y] > 0 && grid[tmp - 1][y] == grid[tmp][y]){
+	  } else if(grid[tmp][y] > 0 && grid[tmp - 1][y] == grid[tmp][y] &&
+		    !((merged[y] >> (3 - (tmp - 1))) & 1)) {
 	    grid[tmp - 1][y] += 1;
 	    grid[tmp][y] = 0;
+	    merged[y] |= 1 << (3 - (tmp - 1));
 	    tmp = 0;
 	    move_flag = COULD_MOVE;
 	  } else {
