@@ -223,8 +223,8 @@ void render_intro(badge_framebuffer * fb) {
   badge_framebuffer_clear(fb);
   badge_framebuffer_render_text(fb, 10, BADGE_DISPLAY_HEIGHT / 2 - BADGE_FONT_HEIGHT,
 				"A oder B zum");
-  badge_framebuffer_render_text(fb, 0, BADGE_DISPLAY_HEIGHT / 2,
-				"Beenden drÃ¼cken");
+  badge_framebuffer_render_text(fb, 3, BADGE_DISPLAY_HEIGHT / 2,
+				"Beenden drücken");
   badge_framebuffer_flush((badge_framebuffer const *) fb);
 
   for(uint8_t i = 0; i < 100;) {

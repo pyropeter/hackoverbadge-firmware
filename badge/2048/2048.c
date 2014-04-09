@@ -9,7 +9,7 @@ uint8_t show_menu(uint8_t * selected) {
 
   char const * const menu[] = {
     "Neues Spiel",
-    "ZurÃ¼ck"
+    "Zurück"
   };
 
   first_visible = 0;
