@@ -279,12 +279,14 @@ void show_frame(badge_framebuffer * fb) {
 }
 
 void render_score(badge_framebuffer * fb, uint32_t score) {
-  uint8_t digit, pow10;
+  uint8_t digit;
+  uint32_t pow10;
 
   pow10 = 1;
   for(uint8_t i = 0; i < 9; i++) {
     score /= pow10;
     digit = score % 10;
+    score *= pow10;
     pow10 *= 10;
     badge_framebuffer_render_number(fb, 70 - (i * BADGE_FONT_WIDTH), 1, digit);
   }
