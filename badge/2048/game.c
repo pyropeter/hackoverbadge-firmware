@@ -70,7 +70,7 @@ uint8_t move_possible(uint8_t grid[GRID_SIZE][GRID_SIZE]) {
       }
 
       if(x < 3) {
-	neighbor = grid[x][y + 1];
+	neighbor = grid[x + 1][y];
 	if(value == neighbor)
 	  return MOVE_POSSIBLE;
       }
