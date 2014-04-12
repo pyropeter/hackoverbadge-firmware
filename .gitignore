@@ -5,6 +5,8 @@
 *.ld
 *.dep
 *.lvl
+*.~
+\#*\#
 lpcrc
 badge/tools/level-converter
 badge/tools/mktitleimg
