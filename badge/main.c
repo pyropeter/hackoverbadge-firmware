@@ -261,7 +261,8 @@ int main(void)
   }
 
   badge_event_start();
-  badge_vanity_show();
+  //badge_vanity_show();
+  aether_main();
   main_menu();
 #endif
 

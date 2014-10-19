@@ -35,6 +35,7 @@ OPTDEFINES = -D__NEWLIB__
 SRCS = \
   badge/fahrplan.c \
   badge/backlight.c \
+	badge/aether.c \
   badge/init.c \
   badge/main.c \
   badge/jumpnrun/collision.c \
